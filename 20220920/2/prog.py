@@ -1,10 +1,10 @@
 s = 0
 
 while (x := int(input())) > 0:
-	s += x
+    s += x
 
-	if s > 21:
-		print(s)
-		break
+    if s > 21:
+        print(s)
+        break
 else:
-	print(x)
+    print(x)
