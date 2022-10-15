@@ -13,7 +13,10 @@ def check(pln_a, pln_b, s, w):
     fa = lambda x: sum([coeff * x ** i for i, coeff in enumerate(pln_a[::-1])])
     fb = lambda x: sum([coeff * x ** i for i, coeff in enumerate(pln_b[::-1])])
 
-    return fa(s) / fb(s) == w
+    if fb(s) == 0:
+        return False
+    else:
+        return fa(s) / fb(s) == w
 
 
 print(check(coeffs_a, coeffs_b, s, w))
