@@ -1,0 +1,8 @@
+:sin x sin(x)
+:sqrt z sqrt(z)
+:exp l exp(l)
+exp 2
+sin 17
+sqrt 4
+exp 12
+quit           "hello {}{} hello"

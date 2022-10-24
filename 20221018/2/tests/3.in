@@ -1,0 +1,5 @@
+:pow_func x y pow(x,y)
+:perm_func a b perm(a,b)
+pow_func 2 5
+perm_func 10 3
+quit   "{}:{}"

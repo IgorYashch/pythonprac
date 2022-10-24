@@ -1,0 +1,7 @@
+:sum_of_four a b c d a+b+c+d
+:mul_of_four x y z w x*y*z*w
+sum_of_four 1 2 3 4
+sum_of_four  5 5 5 5
+mul_of_four  1 2 3 4
+mul_of_four 9 8 7 4.0
+quit "LaLaLa:{} BLAblaBla:{}"

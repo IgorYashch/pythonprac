@@ -1,0 +1,8 @@
+:f x y a log(x)+log(y)-a
+:g x a b x**a+x**b
+f 10 100 7
+g 7 1 4
+g 1 1 1
+g 3 0 1
+f 1 1 33
+quit "{}-:-{}"
