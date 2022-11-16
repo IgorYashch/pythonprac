@@ -1,0 +1,13 @@
+a, b, c = Omnibus(), Omnibus(), Omnibus()
+
+
+a.b = b.b = c.b = True
+a.a = b.a = c.a = "hello"
+
+print(a.a, a.b)
+
+print(a.b == b.b)
+
+del c.b
+
+print(a.b != a.c)

@@ -1,0 +1,10 @@
+a = Triangle((-1, 0), (0, 10), (3, -5))
+
+print(round(abs(a), 3))
+print(f"Triangle is {'not' if a else ''} empty")
+
+b = Triangle((0, 0), (1, 0), (1, 1))
+
+print(b in a)
+print(b < a)
+print(b & a)
