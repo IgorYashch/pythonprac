@@ -1,0 +1,12 @@
+class C:
+    num = Num()
+
+
+clss = []
+
+for i in range(5):
+    cls = C()
+    cls.num = i ** 2
+    clss.append(cls)
+
+print(sum(x.num for x in clss))

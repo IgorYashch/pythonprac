@@ -1,0 +1,19 @@
+from prog import objcount
+
+@objcount
+class C:
+    k = 0
+    def __init__(self):
+        self.__class__.k += 1
+
+    def __del__(self):
+        self.__class__.k -= 1
+
+clss = [C() for i in range(100)]
+
+print(C.counter == 100 and C.k == 100)
+
+for i in range(42):
+    clss.pop()
+
+print(C.counter, C.k)

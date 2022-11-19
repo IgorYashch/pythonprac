@@ -1,0 +1,14 @@
+from prog import objcount
+
+@objcount
+class C:
+    def __init__(self):
+        print("I was born!")
+
+    def __del__(self):
+        print("I died!")
+
+c, d, e = C(), C(), C()
+print(C.counter)
+c = 100500
+print(C.counter)

@@ -1,0 +1,25 @@
+import time
+
+alp = Alpha()
+alq = AlphaQ()
+
+# Alpha
+start = time.time()
+
+for i in range(10000):
+    for x in range(ord('a'), ord('z') + 1):
+        setattr(alp, chr(x), i - x)
+
+alp_time = time.time() - start
+
+# AlphaQ
+start = time.time()
+
+for i in range(10000):
+    for x in range(ord('a'), ord('z') + 1):
+        setattr(alq, chr(x), i - x)
+
+alq_time = time.time() - start
+
+
+print(alp_time < alq_time)

@@ -1,0 +1,18 @@
+alp = Alpha(k=11, d='lsfdj', l=None, c=10, z=2, a=42)
+alp.e = 123
+try:
+    alp.foo = 39748
+except AttributeError:
+    print("Hell, no!!!")
+
+print(alp)
+
+
+alq = AlphaQ(k=11, d='lsfdj', l=None, c=10, z=2, a=42)
+alq.e = 123
+try:
+    alq.foo = 39748
+except AttributeError:
+    print("Hell, no!!!")
+    
+print(alq)
