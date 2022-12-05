@@ -1,0 +1,18 @@
+class C(metaclass=check):
+    A: list[int]
+    B: str = "QQ"
+    C: dict[str, int] = {'dkd':5}
+    D: int
+
+c = C()
+print(c.check_annotations())
+c.A = [1, 2, 3, 3]
+print(c.check_annotations())
+c.D = 12
+print(c.check_annotations())
+c.B = 123
+print(c.check_annotations())
+c.B = "string"
+print(c.check_annotations())
+c.A = [[], [], []]
+print(c.check_annotations())

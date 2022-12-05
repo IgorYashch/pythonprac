@@ -1,0 +1,13 @@
+class C(metaclass=check):
+    A: str
+    B: dict[str, int]
+    C: int
+
+c = C()
+print(c.check_annotations())
+c.A = "sdlfjfkds"
+c.B = {1:1, 2:2}
+c.C = 123
+print(c.check_annotations())
+c.B = [1, 2]
+print(c.check_annotations())
