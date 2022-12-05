@@ -1,0 +1,11 @@
+class C(metaclass=dump):
+    x = 345
+
+    foo = lambda self: print('Hello, world!', C.x)
+
+    def print_digits(self, *digits, alpha=0, beta=10):
+        print(*digits, alpha, beta, sep=', ')
+
+c = C()
+c.foo()
+c.print_digits(12,14,56,34,23, beta=34754385)

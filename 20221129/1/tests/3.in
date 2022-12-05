@@ -1,0 +1,12 @@
+class Mult(metaclass=dump):
+    def __init__(self, val):
+        self.val = val
+
+    def __call__(self, *args, **kwargs):
+        result = [x * self.val for x in args]
+        result += [kwargs[name] * self.val for name in kwargs]
+        return result 
+
+cls = Mult(3)
+print(*cls(9, 13, 44))
+print(*cls(9,a=1, b=2, c=134))
