@@ -25,6 +25,7 @@ async def reader(stack, num, time_delay):
         k += 1
         if k == num: evnt.set()
 
+
 async def main():
     delay1, delay2, delay3, num = eval(input())
     queue = asyncio.Queue()
