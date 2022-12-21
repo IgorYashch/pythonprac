@@ -14,6 +14,9 @@ while ((s := input().strip()) != s1):
 
 new_h, new_w = w, h
 
+old_water = water
+old_air = air
+
 md = water % new_w
 water += new_w - md if md else 0
 air -= new_w - md if md else 0
@@ -27,17 +30,17 @@ for i in range(water // new_w):
 print('#' * (new_w + 2))
 
 
-if air > water:
+if old_air > old_water:
     air_len = 20
-    water_len = round(water * 20. / air)
+    water_len = round(old_water * 20. / old_air)
 else:
     water_len = 20
-    air_len = round(air * 20 / water)
+    air_len = round(old_air * 20 / old_water)
 
-air_str = str(air) + '/' + str(air + water)
-water_str = str(water) + '/' + str(air + water)
+air_str = str(old_air) + '/' + str(air + water)
+water_str = str(old_water) + '/' + str(air + water)
 
 max_count_len = len(max([air_str, water_str], key=len))
 
-print(f'{"*" * air_len : <20} {air_str : >{max_count_len}}')
+print(f'{"." * air_len : <20} {air_str : >{max_count_len}}')
 print(f'{"~" * water_len : <20} {water_str : >{max_count_len}}')
