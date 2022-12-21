@@ -42,5 +42,5 @@ while True:
     except InvalidInput:
         print("Invalid input")
     else:
-        print(round(s, 2))
+        print('{:.2f}'.format(s))
         break
