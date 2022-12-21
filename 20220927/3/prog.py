@@ -1,15 +1,15 @@
-input_ = []
+first_line = list(eval(input()))
+n = len(first_line)
+input_ = [first_line]
 
-while s := input():
-    input_.append(list(eval(s)))
+for i in range(2 * n - 1):
+    input_.append(list(eval(input())))
+
 
 # предполагаем, что ввод всегда полностью корректный
 
-n = len(input_)//2
-
 a = input_[: n]
 b = input_[n:]
-
 
 mul = []
 
