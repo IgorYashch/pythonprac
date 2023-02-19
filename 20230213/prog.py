@@ -73,6 +73,23 @@ def get_tree_for_last_commit(repo_path, commit_id):
     return tree_body
 
 
+# Task 4
+def iterate_trees_for_last_commit(repo_path, commit_id):
+    result = []
+
+    while True:
+        commit_body = get_commit_body(repo_path, commit_id)
+        tree_body = get_tree_for_last_commit(repo_path, commit_id)
+        result.append((commit_id, tree_body))
+
+        if commit_body.split()[2] == "parent":
+            commit_id = commit_body.split()[3]
+        else:
+            break
+
+    return result
+
+
 def main():
     branches_paths = get_branches(REPO_PATH)
     branches_names = [basename(b) for b in branches_paths]
@@ -91,10 +108,16 @@ def main():
         # commit_body = get_commit_body(REPO_PATH, last_commit_id)
         # print(commit_body)
 
-        # Task 3
-        tree_body = get_tree_for_last_commit(REPO_PATH, last_commit_id)
-        for tmode, id, name in tree_body:
-            print(f'{tmode} {id}    {name}')
+        # # Task 3
+        # tree_body = get_tree_for_last_commit(REPO_PATH, last_commit_id)
+        # for tmode, id, name in tree_body:
+        #     print(f'{tmode} {id}    {name}')
+
+        # Task 4
+        for commit_id, tree_body in iterate_trees_for_last_commit(REPO_PATH, last_commit_id):
+            print(f"TREE for commit {commit_id}")
+            for tmode, id, name in tree_body:
+                print(f"{tmode} {id}    {name}")
 
 
 if __name__ == "__main__":
