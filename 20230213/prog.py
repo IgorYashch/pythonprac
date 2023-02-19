@@ -10,7 +10,7 @@ def get_branches():
     return [branch for branch in glob.iglob("../.git/refs/heads/*")]
 
 
-def get_commits(path, commit_id):
+def print_commit(path, commit_id):
     for store in glob.iglob(path):
         id = basename(dirname(store)) + basename(store)
 
@@ -20,8 +20,8 @@ def get_commits(path, commit_id):
             kind, size = header.split()
 
         if kind == b'commit' and id == commit_id:
-            out = body.decode().replace('\n', '\n' + SHIFT)
-            print(f"{SHIFT}{out}")
+            out = body.decode()
+            print(f"{out}")
 
 branches = get_branches()
 
@@ -37,5 +37,5 @@ else:
     my_branch_commit_id = open(branch_path, "rb").read().rstrip().decode()
     # print(my_branch_commit_id)
 
-    get_commits("../.git/objects/??/*", my_branch_commit_id)
+    print_commit("../.git/objects/??/*", my_branch_commit_id)
 
