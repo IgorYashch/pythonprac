@@ -48,8 +48,8 @@ class MultiUserDungeon:
         self.monsters_coords[coords] = name, phrase
 
     def encounter(self, monster_coords):
-        phrase = self.monsters_coords[monster_coords][1]
-        print(cowsay(phrase))
+        monster, phrase = self.monsters_coords[monster_coords]
+        print(cowsay(phrase, cow=monster))
 
 
 def mainloop():
