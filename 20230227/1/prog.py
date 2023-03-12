@@ -70,7 +70,7 @@ def parse_addmon(shlex_line):
 
     return monstr_name, *coords, hello_message, hp
 
-
+# Основной цикл
 def mainloop():
     print('<<< Welcome to Python-MUD 0.1 >>>')
     
