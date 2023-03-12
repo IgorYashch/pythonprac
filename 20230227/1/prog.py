@@ -1,3 +1,5 @@
+import shlex
+
 from cowsay import cowsay, list_cows
 from collections import namedtuple
 
@@ -33,7 +35,7 @@ class MultiUserDungeon:
         if self.user_coords in self.monsters_coords:
             self.encounter(self.user_coords)
 
-    def add_monster(self, name, x, y, phrase):
+    def add_monster(self, name, x, y, phrase, hp):
         coords = Coords(x, y)
 
         if name not in list_cows():
@@ -45,18 +47,28 @@ class MultiUserDungeon:
         if coords in self.monsters_coords:
             print("Replace the old monster")
 
-        self.monsters_coords[coords] = name, phrase
+        self.monsters_coords[coords] = name, phrase, hp
 
     def encounter(self, monster_coords):
-        monster, phrase = self.monsters_coords[monster_coords]
+        monster, phrase, hp = self.monsters_coords[monster_coords]
         print(cowsay(phrase, cow=monster))
 
+
+def parse_addmon(shlex_line):
+    monstr_name = 'default' 
+    coords = (0, 0)
+    hello_message = 'Rrrr'
+    hp = 1
+    return monstr_name, *coords, hello_message, hp
+    
 
 def mainloop():
     
     game = MultiUserDungeon(10, 10)
 
-    while (line:= input().split()):
+    while (line:= input()):
+        line = shlex.split(line)
+        
         if not line:
             continue
         elif line[0] in {"up", "down", "left", "right"}:
@@ -67,13 +79,12 @@ def mainloop():
 
         elif line[0] == "addmon":
             try:
-                assert len(line) == 5
-                line[2] = int(line[2])
-                line[3] = int(line[3])
-            except:
-                raise SyntaxError("Invalid arguments")
+                args = parse_addmon(line)
+            except Exception:
+                print("Wrong format of command! Try again!")
+                continue
 
-            game.add_monster(*line[1:])
+            game.add_monster(*args)
 
         else:
             raise ValueError("Invalid command")
