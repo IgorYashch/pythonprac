@@ -5,6 +5,9 @@ from cowsay import cowsay, list_cows, read_dot_cow
 from collections import namedtuple
 from io import StringIO
 
+X_SHAPE, Y_SHAPE = 10, 10
+DEFAULT_ATTACH_HP = 10
+
 custom_monster = read_dot_cow(StringIO(r"""
 $the_cow = <<EOC;
         \\
@@ -24,8 +27,6 @@ EOC
 Coords = namedtuple('Coords', ['x', 'y'])
 Coords.__repr__ = lambda self: f'({self.x}, {self.y})'
 
-X_SHAPE, Y_SHAPE = 10, 10
-DEFAULT_ATTACH_HP = 10
 
 class MultiUserDungeon:
     shape = (0, 0)
@@ -73,7 +74,7 @@ class MultiUserDungeon:
             print(cowsay(phrase, cowfile=custom_monster))
         else:
             print(cowsay(phrase, cow=monster))
-    
+
     def attack(self):
         if self.user_coords not in self.monsters_coords:
             print("No monster here")
@@ -88,6 +89,7 @@ class MultiUserDungeon:
             else:
                 del self.monsters_coords[self.user_coords]
                 print(f'{monster} died')
+
 
 class MUD_mainloop(cmd.Cmd):
     intro = """<<< Welcome to Python-MUD 0.1 >>>"""
@@ -134,6 +136,7 @@ class MUD_mainloop(cmd.Cmd):
     def do_attack(self, args):
         if not args:
             self.game.attack()
+
 
 if __name__ == "__main__":
     loop = MUD_mainloop(10, 10)
