@@ -1,9 +1,10 @@
 
-import shlex
 import cmd
-from cowsay import cowsay, list_cows, read_dot_cow
+import shlex
 from collections import namedtuple
 from io import StringIO
+
+from cowsay import cowsay, list_cows, read_dot_cow
 
 X_SHAPE, Y_SHAPE = 10, 10
 DEFAULT_ATTACH_HP = 10
@@ -90,6 +91,16 @@ class MultiUserDungeon:
                 del self.monsters_coords[self.user_coords]
                 print(f'{monster} died')
 
+    def attack_by_name(self, monster_name):
+        if self.user_coords not in self.monsters_coords:
+            print(f"No {monster_name} here")
+        else:
+            monster, phrase, hp = self.monsters_coords[self.user_coords]
+            if monster == monster_name:
+                self.attack()
+            else:
+                print(f"No {monster_name} here")
+
 
 class MUD_mainloop(cmd.Cmd):
     intro = """<<< Welcome to Python-MUD 0.1 >>>"""
@@ -134,8 +145,17 @@ class MUD_mainloop(cmd.Cmd):
             self.game.add_monster(monster_name, *coords, hello_message, hp)
 
     def do_attack(self, args):
+        args = shlex.split(args)
         if not args:
             self.game.attack()
+        elif len(args) == 1:
+            monster_name = args[0]
+            self.game.attack_by_name(monster_name)
+
+    def complete_attack(self, prefix, text, start, end):
+        line = shlex.split(text)
+        if line[1] == prefix:
+            return [x for x in [*list_cows(), 'jgsbat'] if x.startswith(prefix)]
 
 
 if __name__ == "__main__":
