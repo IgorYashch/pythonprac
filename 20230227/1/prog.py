@@ -53,6 +53,7 @@ class MultiUserDungeon:
 
 
 def mainloop():
+    print('<<< Welcome to Python-MUD 0.1 >>>')
     
     game = MultiUserDungeon(10, 10)
 
