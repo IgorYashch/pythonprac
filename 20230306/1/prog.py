@@ -56,7 +56,6 @@ class MultiUserDungeon:
     def add_monster(self, name, x, y, phrase, hp):
         coords = Coords(x, y)
 
-        
         if name not in [*list_cows(), 'jgsbat']:
             print('Cannot add unknown monster')
             return
@@ -76,56 +75,10 @@ class MultiUserDungeon:
             print(cowsay(phrase, cow=monster))
 
 
-# def parse_addmon(shlex_line):
-#     assert len(shlex_line) == 9, "Bad num of arguments"
-
-#     monstr_name = shlex_line[1]
-
-#     coords_index = shlex_line.index('coords')
-#     coords = tuple(map(int, shlex_line[coords_index + 1:coords_index + 3]))
-
-#     hello_index = shlex_line.index('hello')
-#     hello_message = shlex_line[hello_index + 1]
-
-#     hp_index = shlex_line.index('hp')
-#     hp = int(shlex_line[hp_index + 1])
-
-#     return monstr_name, *coords, hello_message, hp
-
-# # Основной цикл
-# def mainloop():
-#     print('<<< Welcome to Python-MUD 0.1 >>>')
-    
-#     game = MultiUserDungeon(10, 10)
-
-#     while (line := input()):
-#         line = shlex.split(line)
-
-#         if not line:
-#             continue
-#         elif line[0] in {"up", "down", "left", "right"}:
-#             if len(line) > 1:
-#                 print("Wrong format of command! Try again!")
-#                 continue
-
-#             game.move(line[0])
-
-#         elif line[0] == "addmon":
-#             try:
-#                 args = parse_addmon(line)
-#             except Exception as e:
-#                 print("Wrong format of command! Try again!")
-#                 continue
-
-#             game.add_monster(*args)
-
-#         else:
-#             print("Wrong format of command! Try again!")
-
-
 class MUD_mainloop(cmd.Cmd):
     intro = """<<< Welcome to Python-MUD 0.1 >>>"""
     prompt = "(MUD) "
+
     def __init__(self, n, m):
         super().__init__()
         self.game = MultiUserDungeon(n, m)
@@ -135,13 +88,36 @@ class MUD_mainloop(cmd.Cmd):
 
     def do_down(self, args):
         self.game.move('down')
-        
+
     def do_left(self, args):
         self.game.move('left')
-        
+
     def do_right(self, args):
         self.game.move('right')
-        
+
+    def do_addmon(self, line):
+        try:
+            shlex_line = shlex.split(line)
+            if len(shlex_line) == 9:
+                raise SyntaxError
+
+            monster_name = shlex_line[0]
+
+            coords_index = shlex_line.index('coords')
+            coords = tuple(
+                map(int, shlex_line[coords_index + 1:coords_index + 3]))
+
+            hello_index = shlex_line.index('hello')
+            hello_message = shlex_line[hello_index + 1]
+
+            hp_index = shlex_line.index('hp')
+            hp = int(shlex_line[hp_index + 1])
+        except:
+            print("Wrong format of command! Try again!")
+        else:
+            self.game.add_monster(monster_name, *coords, hello_message, hp)
+
+
 if __name__ == "__main__":
     loop = MUD_mainloop(10, 10)
     loop.cmdloop()
