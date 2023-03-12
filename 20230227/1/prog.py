@@ -1,5 +1,22 @@
-from cowsay import cowsay, list_cows
+from cowsay import cowsay, list_cows, read_dot_cow
 from collections import namedtuple
+from io import StringIO
+
+custom_monster = read_dot_cow(StringIO(r"""
+$the_cow = <<EOC;
+        \\
+         \\
+    ,_    \\               _,
+    ) '-._  ,_    _,  _.-' (
+    )  _.-'.|\\\\--//|.'-._  (
+     )'   .'\/o\/o\/'.   `(
+      ) .' . \====/ . '. (
+       )  / <<    >> \  (
+        '-._/``  ``\_.-'
+  jgs     __\\\\'--'//__
+         (((""`  `"")))
+EOC
+"""))
 
 Coords = namedtuple('Coords', ['x', 'y'])
 Coords.__repr__ = lambda self: f'({self.x}, {self.y})'
@@ -36,7 +53,8 @@ class MultiUserDungeon:
     def add_monster(self, name, x, y, phrase):
         coords = Coords(x, y)
 
-        if name not in list_cows():
+        
+        if name not in [*list_cows(), 'jgsbat']:
             print('Cannot add unknown monster')
             return
 
@@ -49,7 +67,10 @@ class MultiUserDungeon:
 
     def encounter(self, monster_coords):
         monster, phrase = self.monsters_coords[monster_coords]
-        print(cowsay(phrase, cow=monster))
+        if monster == 'jgsbat':
+            print(cowsay(phrase, cowfile=custom_monster))
+        else:
+            print(cowsay(phrase, cow=monster))
 
 
 def mainloop():
