@@ -101,6 +101,16 @@ class MultiUserDungeon:
                 del self.monsters_coords[self.user_coords]
                 print(f'{monster} died')
 
+    def attack_by_name(self, monster_name):
+        if self.user_coords not in self.monsters_coords:
+            print(f"No {monster_name} here")
+        else:
+            monster, phrase, hp = self.monsters_coords[self.user_coords]
+            if monster == monster_name:
+                self.attack()
+            else:
+                print(f"No {monster_name} here")
+
 
 class MUD_mainloop(cmd.Cmd):
     intro = """<<< Welcome to Python-MUD 0.1 >>>"""
@@ -150,6 +160,9 @@ class MUD_mainloop(cmd.Cmd):
             self.game.attack()
         elif len(args) == 2 and args[0] == 'with':
             self.game.attack(args[1])
+        elif len(args) == 1:
+            monster_name = args[0]
+            self.game.attack_by_name(monster_name)
         else:
             print("Wrong format of command! Try again!")
 
@@ -157,7 +170,8 @@ class MUD_mainloop(cmd.Cmd):
         # print(prefix, line, start, end)
         if 'with' in line:
             return [x for x in ('sword', 'spear', 'axe') if x.startswith(prefix)]
-
+        elif line[1] == prefix:
+            return [x for x in [*list_cows(), 'jgsbat'] if x.startswith(prefix)]
 
 if __name__ == "__main__":
     loop = MUD_mainloop(10, 10)
