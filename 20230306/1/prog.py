@@ -149,10 +149,14 @@ class MUD_mainloop(cmd.Cmd):
         if not args:
             self.game.attack()
         elif len(args) == 2 and args[0] == 'with':
-            
             self.game.attack(args[1])
         else:
             print("Wrong format of command! Try again!")
+
+    def complete_attack(self, prefix, line, start, end):
+        # print(prefix, line, start, end)
+        if 'with' in line:
+            return [x for x in ('sword', 'spear', 'axe') if x.startswith(prefix)]
 
 
 if __name__ == "__main__":
