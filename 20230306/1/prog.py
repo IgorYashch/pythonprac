@@ -25,7 +25,7 @@ Coords = namedtuple('Coords', ['x', 'y'])
 Coords.__repr__ = lambda self: f'({self.x}, {self.y})'
 
 X_SHAPE, Y_SHAPE = 10, 10
-
+DEFAULT_ATTACH_HP = 10
 
 class MultiUserDungeon:
     shape = (0, 0)
@@ -73,7 +73,21 @@ class MultiUserDungeon:
             print(cowsay(phrase, cowfile=custom_monster))
         else:
             print(cowsay(phrase, cow=monster))
-
+    
+    def attack(self):
+        if self.user_coords not in self.monsters_coords:
+            print("No monster here")
+        else:
+            monster, phrase, hp = self.monsters_coords[self.user_coords]
+            attack_hp = min(hp, DEFAULT_ATTACH_HP)
+            print(f'Attacked {monster}, damage {attack_hp} hp')
+            new_hp = hp - attack_hp
+            if new_hp:
+                self.monsters_coords[self.user_coords] = monster, phrase, new_hp
+                print(f'{monster} now has {new_hp}')
+            else:
+                del self.monsters_coords[self.user_coords]
+                print(f'{monster} died')
 
 class MUD_mainloop(cmd.Cmd):
     intro = """<<< Welcome to Python-MUD 0.1 >>>"""
@@ -117,6 +131,9 @@ class MUD_mainloop(cmd.Cmd):
         else:
             self.game.add_monster(monster_name, *coords, hello_message, hp)
 
+    def do_attack(self, args):
+        if not args:
+            self.game.attack()
 
 if __name__ == "__main__":
     loop = MUD_mainloop(10, 10)
