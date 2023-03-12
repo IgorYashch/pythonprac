@@ -1,12 +1,12 @@
 
-import shlex
 import cmd
-from cowsay import cowsay, list_cows, read_dot_cow
+import shlex
 from collections import namedtuple
 from io import StringIO
 
+from cowsay import cowsay, list_cows, read_dot_cow
+
 X_SHAPE, Y_SHAPE = 10, 10
-DEFAULT_ATTACH_HP = 10
 
 custom_monster = read_dot_cow(StringIO(r"""
 $the_cow = <<EOC;
@@ -75,12 +75,23 @@ class MultiUserDungeon:
         else:
             print(cowsay(phrase, cow=monster))
 
-    def attack(self):
+    def attack(self, weapon='sword'):
+        weapons_damage = {
+            'sword': 10,
+            'spear': 15,
+            'axe': 20
+        }
+
+        if weapon not in weapons_damage:
+            print("Unknown weapon")
+            return
+        damage = weapons_damage[weapon]
+
         if self.user_coords not in self.monsters_coords:
             print("No monster here")
         else:
             monster, phrase, hp = self.monsters_coords[self.user_coords]
-            attack_hp = min(hp, DEFAULT_ATTACH_HP)
+            attack_hp = min(hp, damage)
             print(f'Attacked {monster}, damage {attack_hp} hp')
             new_hp = hp - attack_hp
             if new_hp:
@@ -134,8 +145,14 @@ class MUD_mainloop(cmd.Cmd):
             self.game.add_monster(monster_name, *coords, hello_message, hp)
 
     def do_attack(self, args):
+        args = shlex.split(args)
         if not args:
             self.game.attack()
+        elif len(args) == 2 and args[0] == 'with':
+            
+            self.game.attack(args[1])
+        else:
+            print("Wrong format of command! Try again!")
 
 
 if __name__ == "__main__":
