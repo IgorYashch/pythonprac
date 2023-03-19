@@ -1,12 +1,20 @@
 
+import asyncio
 import cmd
 import shlex
+import sys
 from collections import namedtuple
 from io import StringIO
 
 from cowsay import cowsay, list_cows, read_dot_cow
 
 X_SHAPE, Y_SHAPE = 10, 10
+PORT = 1337
+
+# ----------------------------------------------
+# --------------------SERVER--------------------
+# ----------------------------------------------
+
 
 custom_monster = read_dot_cow(StringIO(r"""
 $the_cow = <<EOC;
@@ -27,7 +35,7 @@ EOC
 Coords = namedtuple('Coords', ['x', 'y'])
 Coords.__repr__ = lambda self: f'({self.x}, {self.y})'
 
-
+# Оставил класс MUD
 class MultiUserDungeon:
     shape = (0, 0)
     monsters_coords = {}
@@ -112,6 +120,35 @@ class MultiUserDungeon:
                 print(f"No {monster_name} here")
 
 
+async def handler(reader, writer):
+    while not reader.at_eof():
+        data = await reader.readline()
+        
+        # handler code here
+        
+        writer.write(data.swapcase())
+    writer.close()
+    await writer.wait_closed()
+
+
+async def server_main():
+    server = await asyncio.start_server(handler, '0.0.0.0', PORT)
+    async with server:
+        await server.serve_forever()
+
+
+# ----------------------------------------------
+# ----------------------------------------------
+# ----------------------------------------------
+
+# информация отправляется в строке вида
+# <имя метода в классе MUD> [<все параметры метода через пробел>]
+
+# ----------------------------------------------
+# --------------------CLIENT--------------------
+# ----------------------------------------------
+
+
 class MUD_mainloop(cmd.Cmd):
     intro = """<<< Welcome to Python-MUD 0.1 >>>"""
     prompt = "(MUD) "
@@ -173,6 +210,20 @@ class MUD_mainloop(cmd.Cmd):
         elif line[1] == prefix:
             return [x for x in [*list_cows(), 'jgsbat'] if x.startswith(prefix)]
 
+
+# ----------------------------------------------
+# ----------------------------------------------
+# ----------------------------------------------
+
 if __name__ == "__main__":
-    loop = MUD_mainloop(10, 10)
-    loop.cmdloop()
+    if sys.argv[1] == 'client':
+        loop = MUD_mainloop(10, 10)
+        loop.cmdloop()
+    elif sys.argv[1] == 'server':
+        asyncio.run(main())
+    else:
+        print('''Please enter parameter of work mode ("client"/"server")
+Example: python prog.py client''')
+        
+    # loop = MUD_mainloop(10, 10)
+    # loop.cmdloop()
