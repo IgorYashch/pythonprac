@@ -2,6 +2,7 @@
 import asyncio
 import cmd
 import shlex
+import socket
 import sys
 from collections import namedtuple
 from io import StringIO
@@ -83,7 +84,7 @@ class MultiUserDungeon:
         else:
             print(cowsay(phrase, cow=monster))
 
-    def attack(self, weapon='sword'):
+    def attack(self, weapon):
         weapons_damage = {
             'sword': 10,
             'spear': 15,
@@ -120,19 +121,16 @@ class MultiUserDungeon:
                 print(f"No {monster_name} here")
 
 
-async def handler(reader, writer):
+async def echo(reader, writer):
     while not reader.at_eof():
         data = await reader.readline()
-        
-        # handler code here
-        
+        print(data.decode())
         writer.write(data.swapcase())
     writer.close()
     await writer.wait_closed()
 
-
-async def server_main():
-    server = await asyncio.start_server(handler, '0.0.0.0', PORT)
+async def main_server():
+    server = await asyncio.start_server(echo, '127.0.0.1', 1337)
     async with server:
         await server.serve_forever()
 
@@ -153,21 +151,25 @@ class MUD_mainloop(cmd.Cmd):
     intro = """<<< Welcome to Python-MUD 0.1 >>>"""
     prompt = "(MUD) "
 
-    def __init__(self, n, m):
+    def __init__(self, sct):
         super().__init__()
-        self.game = MultiUserDungeon(n, m)
+        self.sct = sct
 
     def do_up(self, args):
-        self.game.move('up')
-
+        self.sct.sendall(b"move up\n")
+        print(self.sct.recv(1024).decode())
+        
     def do_down(self, args):
-        self.game.move('down')
+        self.sct.sendall(b"move down\n")
+        print(self.sct.recv(1024).decode())
 
     def do_left(self, args):
-        self.game.move('left')
+        self.sct.sendall(b"move left\n")
+        print(self.sct.recv(1024).decode())
 
     def do_right(self, args):
-        self.game.move('right')
+        self.sct.sendall(b"move right\n")
+        print(self.sct.recv(1024).decode())
 
     def do_addmon(self, line):
         try:
@@ -189,26 +191,42 @@ class MUD_mainloop(cmd.Cmd):
         except:
             print("Wrong format of command! Try again!")
         else:
-            self.game.add_monster(monster_name, *coords, hello_message, hp)
+            message = f'add_monster {monster_name} {coords[0]} {coords[1]} {hello_message} {hp}\n'
+            self.sct.sendall(message.encode())
+            print(self.sct.recv(1024).decode())
 
     def do_attack(self, args):
         args = shlex.split(args)
         if not args:
-            self.game.attack()
+            message = f'attack sword\n'
+            self.sct.sendall(message.encode())
+            print(self.sct.recv(1024).decode())
+            
         elif len(args) == 2 and args[0] == 'with':
-            self.game.attack(args[1])
+            message = f'attack {args[1]}\n'
+            self.sct.sendall(message.encode())
+            print(self.sct.recv(1024).decode())
+            
         elif len(args) == 1:
-            monster_name = args[0]
-            self.game.attack_by_name(monster_name)
+            message = f'attack_by_name {args[0]}\n'
+            self.sct.sendall(message.encode())
+            print(self.sct.recv(1024).decode())
+            
         else:
             print("Wrong format of command! Try again!")
 
     def complete_attack(self, prefix, line, start, end):
-        # print(prefix, line, start, end)
         if 'with' in line:
             return [x for x in ('sword', 'spear', 'axe') if x.startswith(prefix)]
         elif line[1] == prefix:
             return [x for x in [*list_cows(), 'jgsbat'] if x.startswith(prefix)]
+
+
+def main_client():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(('localhost', PORT))
+        cmd = MUD_mainloop(s)
+        cmd.cmdloop()
 
 
 # ----------------------------------------------
@@ -217,13 +235,9 @@ class MUD_mainloop(cmd.Cmd):
 
 if __name__ == "__main__":
     if sys.argv[1] == 'client':
-        loop = MUD_mainloop(10, 10)
-        loop.cmdloop()
+        main_client()
     elif sys.argv[1] == 'server':
-        asyncio.run(main())
+        asyncio.run(main_server())
     else:
         print('''Please enter parameter of work mode ("client"/"server")
 Example: python prog.py client''')
-        
-    # loop = MUD_mainloop(10, 10)
-    # loop.cmdloop()
