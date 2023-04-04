@@ -1,0 +1,32 @@
+import calendar
+
+
+def format_line(line):
+    return '|' + '|'.join(x.rjust(2) for x in line) + '|'
+
+def generate_table(year, month):
+    lines = calendar.month(year, month).split('\n')
+    output = ['Calendar', '==============']
+
+    back_line = '+' + '-' * 20 + '+' 
+    split_line = '+--' * 7 + '+'
+
+    output.append(back_line)
+    output.append('|' + lines[0].strip().center(20) + '|')
+    output.append(split_line)
+    output.append(format_line(lines[1].split()))
+    output.append(split_line)
+
+    first_line = lines[2].split()
+    first_line = ['  '] * (7 - len(first_line)) + first_line
+
+    output.append(format_line(first_line))
+    output.append(split_line)
+    for line in lines[3:-1]:
+        output.append(format_line(line.split()))
+        output.append(split_line)
+
+    end_line = lines[-1].split()
+    end_line = end_line + ['  '] * (7 - len(first_line))
+
+    return '\n'.join(output)
