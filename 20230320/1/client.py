@@ -3,7 +3,7 @@ import shlex
 import socket
 import readline
 import threading
-
+import sys
 from cowsay import list_cows
 
 
@@ -97,12 +97,26 @@ class MUD_mainloop(cmd.Cmd):
             return [x for x in [*list_cows(), "jgsbat"] if x.startswith(prefix)]
 
 
-def main_client():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        cmd = MUD_mainloop(s)
-        cmd.cmdloop()
+def main():
+    if len(sys.argv) != 2:
+        print("Enter your user name")
+    else:
+        username = sys.argv[1]
+        print(username)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((HOST, PORT))
+
+            s.sendall((username + "\n").encode())
+            message = s.recv(1024).decode()
+
+            print(message)
+
+            if message == "Connection created!":
+                cmd = MUD_mainloop(s)
+                cmd.cmdloop()
+            else:
+                return
 
 
 if __name__ == "__main__":
-    main_client()
+    main()

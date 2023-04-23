@@ -142,17 +142,31 @@ class MultiUserDungeon:
 game = None
 
 
+clients = set()
 # Основной обработчик сообщений от клиента
 # Каждый раз образается к объекту game
 async def handler(reader, writer):
-    while not reader.at_eof():
-        data = await reader.readline()
+    username = await reader.readline()
+    username = username.decode()
+    print(username)
+    print(clients)
+    if username not in clients:
+        clients.add(username)
+        writer.write("Connection created!".encode())
+        
+        while not reader.at_eof():
+            data = await reader.readline()
 
-        method, *args = shlex.split(data.decode())
-        print(method)
-        answer = getattr(game, method)(*args) + "\n"
-        print(answer)
-        writer.write(answer.encode())
+            method, *args = shlex.split(data.decode())
+            print(method)
+            answer = getattr(game, method)(*args) + "\n"
+            print(answer)
+            writer.write(answer.encode())
+            
+            
+    else:
+        writer.write("User already exist!".encode())
+        
     writer.close()
     await writer.wait_closed()
 
@@ -166,3 +180,6 @@ async def main_server():
 if __name__ == "__main__":
     game = MultiUserDungeon(X_SHAPE, Y_SHAPE)
     asyncio.run(main_server())
+    
+    
+    
