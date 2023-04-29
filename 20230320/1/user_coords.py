@@ -19,7 +19,7 @@ class Coordinates:
         return self.data == other.data
 
     def __repr__(self):
-        return f"Coords({self.data[0]}, {self.data[1]})"
+        return f"({self.data[0]}, {self.data[1]})"
     
     def __hash__(self):
         return hash(self.data)

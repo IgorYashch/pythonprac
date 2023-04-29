@@ -88,9 +88,7 @@ class MUD_mainloop(cmd.Cmd):
         """
         Attack monster 
         Formats: 
-            - attack
-            - attack <monster's name>
-            - attack with <weapon's name>
+            - attack [<monster's name>] [with <weapon's name>]
         """
         args = shlex.split(args)
         if not args:
@@ -101,10 +99,13 @@ class MUD_mainloop(cmd.Cmd):
             message = f"attack {args[1]}\n"
             self.sct.sendall(message.encode())
 
-        elif len(args) == 1:
-            message = f"attack_by_name {args[0]}\n"
+        elif len(args) == 1 and args[0] != "with":
+            message = f"attack_by_name {args[0]} sword\n"
             self.sct.sendall(message.encode())
 
+        elif len(args) == 3 and args[1] == "with":
+            message = f"attack_by_name {args[0]} {args[2]}\n"
+            self.sct.sendall(message.encode())
         else:
             print("Wrong format of command! Try again!")
     
@@ -113,9 +114,13 @@ class MUD_mainloop(cmd.Cmd):
         return True
         
     def complete_attack(self, prefix, line, start, end):
+        # print ("---", prefix)
+        # print("---", line.split())
         if "with" in line:
             return [x for x in ("sword", "spear", "axe") if x.startswith(prefix)]
-        elif line[1] == prefix:
+        elif (line.split()[-1] == 'attack'):
+            return [x for x in [*list_cows(), "jgsbat"]]
+        elif (line.split()[-1] == prefix):
             return [x for x in [*list_cows(), "jgsbat"] if x.startswith(prefix)]
 
 

@@ -49,12 +49,13 @@ class MultiUserDungeon:
         # Formant: {<name> :  <coords>}
         self.users_coords = {}
         
-        # Format: [(<for all users?>: bool, <message>: string)]
+        # Format: [(<message>: string, <for all users?>: bool)]
         self.answer_messages = []
         
     def add_new_user(self, username):
         """Add new user to the game"""
         self.users_coords[username] = Coordinates(0, 0, self.shape)
+        self.print(f"{username} enter to the game!", True)
         
     def check_user(self, username):
         """Check if user already in the game"""
@@ -142,14 +143,14 @@ class MultiUserDungeon:
 
         return self.answer_messages
 
-    def attack_by_name(self, username, monster_name):
+    def attack_by_name(self, username, monster_name, weapon):
         self.answer_messages = []
-        if self.users_coords not in self.monsters:
+        if self.users_coords[username] not in self.monsters:
             self.print(f"No {monster_name} here", False)
         else:
             monster, phrase, hp = self.monsters[self.users_coords[username]]
             if monster == monster_name:
-                self.attack(username, "sword")
+                self.attack(username, weapon)
             else:
                 self.print(f"No {monster_name} here", False)
         return self.answer_messages
