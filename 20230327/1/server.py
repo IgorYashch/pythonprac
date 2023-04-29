@@ -175,6 +175,14 @@ class MultiUserDungeon:
             else:
                 self.print(f"No {monster_name} here", SEND_CURRENT_USER)
         return self.answer_messages
+    
+    def sayall(self, username, message):
+        """
+        Send message all other users
+        """
+        self.answer_messages = []
+        self.print(f"{username}: " + message, SEND_ALL_USERS)
+        return self.answer_messages
 
 
 # Объект игры

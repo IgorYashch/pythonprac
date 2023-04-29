@@ -63,7 +63,7 @@ class MUD_mainloop(cmd.Cmd):
         """Move right"""
         self.sct.sendall(b"move right\n")
 
-    def do_addmon(self, line):
+    def do_addmon(self, args):
         """
         Add monster to the game
         Format:
@@ -71,7 +71,7 @@ class MUD_mainloop(cmd.Cmd):
             (coords, hello and hp - can be swaped)
         """
         try:
-            shlex_line = shlex.split(line)
+            shlex_line = shlex.split(args)
             if len(shlex_line) == 9:
                 raise SyntaxError
 
@@ -115,6 +115,14 @@ class MUD_mainloop(cmd.Cmd):
             self.sct.sendall(message.encode())
         else:
             print("Wrong format of command! Try again!")
+    
+    def do_sayall(self, args):
+        args = shlex.split(args)
+        if len(args) != 1:
+            print("Wrong format of command! Try again!")
+        else:
+            message = f"sayall \"{args[0]}\"\n"
+            self.sct.sendall(message.encode())
     
     def do_quit(self, args):
         """Quit the game"""
