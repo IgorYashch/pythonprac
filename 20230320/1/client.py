@@ -27,8 +27,12 @@ class MUD_mainloop(cmd.Cmd):
         super().__init__()
         self.sct = sct
 
+
         self.print_thread = threading.Thread(target=self.print_from_server)
+        self.exit_event = threading.Event()
+
         self.print_thread.start()
+
 
     def print_from_server(self):
         "Daemon function in another thread for printing answers"
@@ -39,6 +43,9 @@ class MUD_mainloop(cmd.Cmd):
                 end="",
                 flush=True,
             )
+
+            if self.exit_event.is_set():
+                break
 
     def do_up(self, args):
         """Move up"""
@@ -111,6 +118,8 @@ class MUD_mainloop(cmd.Cmd):
     
     def do_quit(self, args):
         """Quit the game"""
+        self.sct.sendall("quit\n".encode())
+        self.exit_event.set()
         return True
         
     def complete_attack(self, prefix, line, start, end):
@@ -133,7 +142,6 @@ def main():
         print("Enter your user name")
     else:
         username = sys.argv[1]
-        print(username)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
 
