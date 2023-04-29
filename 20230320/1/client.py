@@ -20,7 +20,7 @@ HOST = "127.0.0.1"
 # Класс обработчика команд для клиента
 # Обращается к клиенту и зависает, пока не получит ответ
 class MUD_mainloop(cmd.Cmd):
-    intro = """<<< Welcome to Python-MUD 0.1 >>>"""
+    intro = """<<< Welcome to Python-MUD 0.2 >>>"""
     prompt = "(MUD) "
 
     def __init__(self, sct):
@@ -31,6 +31,7 @@ class MUD_mainloop(cmd.Cmd):
         self.print_thread.start()
 
     def print_from_server(self):
+        "Daemon function in another thread for printing answers"
         while True:
             msg = self.sct.recv(1024).decode().rstrip()
             print(
@@ -40,18 +41,28 @@ class MUD_mainloop(cmd.Cmd):
             )
 
     def do_up(self, args):
+        """Move up"""
         self.sct.sendall(b"move up\n")
 
     def do_down(self, args):
+        """Move down"""
         self.sct.sendall(b"move down\n")
 
     def do_left(self, args):
+        """Move left"""
         self.sct.sendall(b"move left\n")
 
     def do_right(self, args):
+        """Move right"""
         self.sct.sendall(b"move right\n")
 
     def do_addmon(self, line):
+        """
+        Add monster to the game
+        Format:
+            addmon <monster-name> coords <x> <y> hello <hello message> hp <heatpoints>
+            (coords, hello and hp - can be swaped)
+        """
         try:
             shlex_line = shlex.split(line)
             if len(shlex_line) == 9:
@@ -74,6 +85,13 @@ class MUD_mainloop(cmd.Cmd):
             self.sct.sendall(message.encode())
 
     def do_attack(self, args):
+        """
+        Attack monster 
+        Formats: 
+            - attack
+            - attack <monster's name>
+            - attack with <weapon's name>
+        """
         args = shlex.split(args)
         if not args:
             message = f"attack sword\n"
@@ -89,7 +107,11 @@ class MUD_mainloop(cmd.Cmd):
 
         else:
             print("Wrong format of command! Try again!")
-
+    
+    def do_quit():
+        """Quit the game"""
+        return True
+        
     def complete_attack(self, prefix, line, start, end):
         if "with" in line:
             return [x for x in ("sword", "spear", "axe") if x.startswith(prefix)]
