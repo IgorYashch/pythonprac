@@ -109,18 +109,22 @@ class MUD_mainloop(cmd.Cmd):
         else:
             print("Wrong format of command! Try again!")
     
-    def do_quit():
+    def do_quit(self, args):
         """Quit the game"""
         return True
         
     def complete_attack(self, prefix, line, start, end):
-        # print ("---", prefix)
-        # print("---", line.split())
         if "with" in line:
             return [x for x in ("sword", "spear", "axe") if x.startswith(prefix)]
         elif (line.split()[-1] == 'attack'):
             return [x for x in [*list_cows(), "jgsbat"]]
-        elif (line.split()[-1] == prefix):
+        elif (line.split()[1] == prefix):
+            return [x for x in [*list_cows(), "jgsbat"] if x.startswith(prefix)]
+        
+    def complete_addmon(self, prefix, line, start, end):
+        if (line.split()[-1] == 'addmon'):
+            return [x for x in [*list_cows(), "jgsbat"]]
+        elif (line.split()[1] == prefix):
             return [x for x in [*list_cows(), "jgsbat"] if x.startswith(prefix)]
 
 
