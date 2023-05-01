@@ -2,6 +2,8 @@
 
 import asyncio
 import shlex
+import random
+import time
 from io import StringIO
 
 from cowsay import cowsay, list_cows, read_dot_cow
@@ -10,7 +12,7 @@ from .UserCoords import Coordinates
 X_SHAPE, Y_SHAPE = 10, 10
 
 
-SEND_CURRENT_USER = 0
+SEND_ONE_USER = 0
 SEND_ANOTHER_USERS = 1
 SEND_ALL_USERS = 2
 
@@ -46,7 +48,7 @@ class MultiUserDungeon:
     shape = (0, 0)
 
     def __init__(self, m, n):
-        """Init game"""
+        """Init game."""
         self.shape = (m, n)
 
         # Formant: {<coords>: (<monster_name>, <phrase>, <hp>)}
@@ -55,74 +57,74 @@ class MultiUserDungeon:
         # Formant: {<name> :  <coords>}
         self.users_coords = {}
 
-        # Format: [(<message>: string, <for all users?>: int)]
+        # Format: [(<message>: string, <for all users?>: int, <to_username>: string)]
         self.answer_messages = []
-
-    def add_new_user(self, username):
-        """Add new user to the game"""
-        self.answer_messages = []
-        self.users_coords[username] = Coordinates(0, 0, self.shape)
-        self.print(f"{username} enter to the game!", SEND_ANOTHER_USERS)
-        return self.answer_messages
-
-    def quit(self, username):
-        """Remove user from the game"""
-        self.answer_messages = []
-        del self.users_coords[username]
-        self.print(f"Googdye, {username}!", SEND_CURRENT_USER)
-        self.print(f"User {username} quit the game!", SEND_ANOTHER_USERS)
-        return self.answer_messages
-
-    def check_user(self, username):
-        """Check if user already in the game"""
-        return username in self.users_coords
-
-    def print(self, msg, mode):
-        """Add message to the list of result answers.
-        (Private function)
-        """
-        self.answer_messages.append((msg + "\n", mode))
-
-    def move(self, username, command):
-        """Move user"""
-        self.answer_messages = []
-
-        cmds = {
+        
+        self.cmds = {
             "up": (1, 0),
             "down": (-1, 0),
             "right": (0, 1),
             "left": (0, -1),
         }
 
-        self.users_coords[username] += cmds[command]
+    def add_new_user(self, username):
+        """Add new user to the game."""
+        self.answer_messages = []
+        self.users_coords[username] = Coordinates(0, 0, self.shape)
+        self.print(f"{username} enter to the game!", SEND_ANOTHER_USERS, username)
+        return self.answer_messages
 
-        self.print(f"Moved to {self.users_coords[username]}", SEND_CURRENT_USER)
+    def quit(self, username):
+        """Remove user from the game."""
+        self.answer_messages = []
+        del self.users_coords[username]
+        self.print(f"Googdye, {username}!", SEND_ONE_USER, username)
+        self.print(f"User {username} quit the game!", SEND_ANOTHER_USERS, username)
+        return self.answer_messages
+
+    def check_user(self, username):
+        """Check if user already in the game."""
+        return username in self.users_coords
+
+    def print(self, msg, mode, to_username=None):
+        """Add message to the list of result answers.
+        (Private function)
+        """
+        self.answer_messages.append((msg + "\n", mode, to_username))
+
+    def move(self, username, command):
+        """Move user."""
+        self.answer_messages = []
+
+        self.users_coords[username] += self.cmds[command]
+
+        self.print(f"Moved to {self.users_coords[username]}", SEND_ONE_USER, username)
 
         if self.users_coords[username] in self.monsters:
-            self.encounter(self.users_coords[username])
+            self.encounter(username, self.users_coords[username])
 
         return self.answer_messages
 
-    def encounter(self, monster_coords):
-        """Meeting with monster"""
+    def encounter(self, username, monster_coords):
+        """Meeting with monster."""
         monster, phrase, hp = self.monsters[monster_coords]
         if monster == "jgsbat":
-            self.print(cowsay(phrase, cowfile=custom_monster), SEND_CURRENT_USER)
+            self.print(cowsay(phrase, cowfile=custom_monster), SEND_ONE_USER, username)
         else:
-            self.print(cowsay(phrase, cow=monster), SEND_CURRENT_USER)
+            self.print(cowsay(phrase, cow=monster), SEND_ONE_USER, username)
 
     def add_monster(self, username, name, x, y, phrase, hp):
-        """Add new monster to the game"""
+        """Add new monster to the game."""
         self.answer_messages = []
         x, y, hp = int(x), int(y), int(hp)
         coords = Coordinates(x, y, self.shape)
 
         if name not in [*list_cows(), "jgsbat"]:
-            self.print("Cannot add unknown monster", SEND_CURRENT_USER)
+            self.print("Cannot add unknown monster", SEND_ONE_USER, username)
             return
 
-        self.print(f'{username} added monster {name} to {coords} saying "{phrase}"', SEND_ANOTHER_USERS)
-        self.print(f'Added monster {name} to {coords} saying "{phrase}"', SEND_CURRENT_USER)
+        self.print(f'{username} added monster {name} to {coords} saying "{phrase}"', SEND_ANOTHER_USERS, username)
+        self.print(f'Added monster {name} to {coords} saying "{phrase}"', SEND_ONE_USER, username)
 
         if coords in self.monsters:
             self.print("The old monster was replaced", SEND_ALL_USERS)
@@ -132,27 +134,27 @@ class MultiUserDungeon:
         return self.answer_messages
 
     def attack(self, username, weapon):
-        """Attack monster in current position"""
+        """Attack monster in current position."""
         self.answer_messages = []
 
         weapons_damage = {"sword": 10, "spear": 15, "axe": 20}
 
         if weapon not in weapons_damage:
-            self.print("Unknown weapon", SEND_CURRENT_USER)
+            self.print("Unknown weapon", SEND_ONE_USER, username)
             return self.answer_messages
 
         damage = weapons_damage[weapon]
 
         if self.users_coords[username] not in self.monsters:
-            self.print("No monster here", SEND_CURRENT_USER)
+            self.print("No monster here", SEND_ONE_USER, username)
         else:
             monster, phrase, hp = self.monsters[self.users_coords[username]]
             attack_hp = min(hp, damage)
 
             new_hp = hp - attack_hp
 
-            self.print(f"Attacked {monster}, damage {attack_hp} hp", SEND_CURRENT_USER)
-            self.print(f"User {username} attacked {monster}, damage {attack_hp} hp", SEND_ANOTHER_USERS)
+            self.print(f"Attacked {monster}, damage {attack_hp} hp", SEND_ONE_USER, username)
+            self.print(f"User {username} attacked {monster}, damage {attack_hp} hp", SEND_ANOTHER_USERS, username)
             if new_hp:
                 self.monsters[self.users_coords[username]] = monster, phrase, new_hp
                 self.print(f"Monster {monster} now has {new_hp}", SEND_ALL_USERS)
@@ -164,26 +166,51 @@ class MultiUserDungeon:
 
     def attack_by_name(self, username, monster_name, weapon):
         """
-        Attack monster in current position with chosing name
+        Attack monster in current position with chosing name.
         (idk why, because in one position can be only one monster)
         """
         self.answer_messages = []
         if self.users_coords[username] not in self.monsters:
-            self.print(f"No {monster_name} here", SEND_CURRENT_USER)
+            self.print(f"No {monster_name} here", SEND_ONE_USER, username)
         else:
             monster, phrase, hp = self.monsters[self.users_coords[username]]
             if monster == monster_name:
                 self.attack(username, weapon)
             else:
-                self.print(f"No {monster_name} here", SEND_CURRENT_USER)
+                self.print(f"No {monster_name} here", SEND_ONE_USER, username)
         return self.answer_messages
 
     def sayall(self, username, message):
-        """
-        Send message all other users
-        """
+        """Send message all other users."""
+        
         self.answer_messages = []
         self.print(f"{username}: " + message, SEND_ALL_USERS)
+        return self.answer_messages
+
+    def move_monster(self):
+        """Move random monster."""
+        
+        self.answer_messages = []
+
+        if not self.monsters:
+            return self.answer_messages
+        
+        random_monster_coords = random.choice(list(self.monsters))
+        random_move = random.choice(list(self.cmds))
+
+        monster_info = self.monsters[random_monster_coords]
+        monster_name = monster_info[0]
+
+        new_coords = random_monster_coords + self.cmds[random_move]
+        self.monsters[new_coords] = monster_info
+        del self.monsters[random_monster_coords]
+
+        self.print(f'{monster_name} moved one cell {random_move}', SEND_ALL_USERS)
+
+        for user, coords in self.users_coords.items():
+            if new_coords == coords:
+                self.encounter(user, new_coords)
+
         return self.answer_messages
 
 
@@ -217,15 +244,16 @@ async def handler(reader, writer, game, clients):
                     # Обрабатываем запрос и отправляем в нужные очереди для отправки клиентам
                     data = job.result()
                     method, *args = shlex.split(data.decode())
-                    print(method, args)
+                    print(f'{username}: {method}')
                     answers = getattr(game, method)(username, *args)
-                    for message, mode in answers:
-                        if mode == SEND_CURRENT_USER:
-                            await clients[username].put(message)
+                    
+                    # Отправить всем, кому надо
+                    for message, mode, to_username in answers:
+                        if mode == SEND_ONE_USER:
+                            await clients[to_username].put(message)
                         else:
-                            # SEND_ANOTHER_USERS
                             for user, user_queue in clients.items():
-                                if mode == SEND_ANOTHER_USERS and user == username:
+                                if mode == SEND_ANOTHER_USERS and user == to_username:
                                     continue
                                 await user_queue.put(message)
 
@@ -248,3 +276,18 @@ async def handler(reader, writer, game, clients):
 
     writer.close()
     await writer.wait_closed()
+
+
+async def move_random_monster(game, clients, time_interval):
+    """Daemon function for moving one random monster with time interval."""
+    while True:
+        await asyncio.sleep(time_interval)
+        answers = game.move_monster()
+        for message, mode, to_username in answers:
+            if mode == SEND_ONE_USER:
+                await clients[to_username].put(message)
+            else:
+                for user, user_queue in clients.items():
+                    if mode == SEND_ANOTHER_USERS and user == to_username:
+                        continue
+                    await user_queue.put(message)

@@ -14,7 +14,7 @@ from cowsay import list_cows
 # Класс обработчика команд для клиента
 # Обращается к клиенту и зависает, пока не получит ответ
 class MUD_mainloop(cmd.Cmd):
-    """Client command line."""
+    """Multiuser Dungeon terminal"""
     prompt = "(MUD) "
 
     def __init__(self, sct):
@@ -126,6 +126,11 @@ class MUD_mainloop(cmd.Cmd):
         self.sct.sendall("quit\n".encode())
         self.exit_event.set()
         return True
+
+    do_EOF = do_quit
+
+    def emptyline(self):
+        pass
 
     def complete_attack(self, prefix, line, start, end):
         """Complete attack command"""
