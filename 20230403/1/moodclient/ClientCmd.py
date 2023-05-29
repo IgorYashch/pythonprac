@@ -1,4 +1,7 @@
-"""Module for comandline for client."""
+"""
+Модуль для командной строки клиента.
+Этот модуль определяет командную строку MUD и все её команды.
+"""
 
 import cmd
 import shlex
@@ -14,11 +17,20 @@ from cowsay import list_cows
 # Класс обработчика команд для клиента
 # Обращается к клиенту и зависает, пока не получит ответ
 class MUD_mainloop(cmd.Cmd):
-    """Multiuser Dungeon terminal"""
+    """
+    Командная строка Multiuser Dungeon (MUD).
+    Этот класс реализует командную строку для клиента MUD.
+    """
+
     prompt = "(MUD) "
 
     def __init__(self, sct):
-        """Initialize of command line."""
+        """
+        Инициализация командной строки.
+
+        :param sct: Сокет для соединения с сервером.
+        :type sct: socket.socket
+        """
         super().__init__()
         self.sct = sct
 
@@ -28,7 +40,11 @@ class MUD_mainloop(cmd.Cmd):
         self.print_thread.start()
 
     def print_from_server(self):
-        """Daemon function in another thread for printing server responses."""
+        """
+        Демон функция в отдельном потоке для вывода ответов сервера.
+
+        :return: None
+        """
         while True:
             msg = self.sct.recv(1024).decode().rstrip()
             print(
@@ -41,28 +57,51 @@ class MUD_mainloop(cmd.Cmd):
                 break
 
     def do_up(self, args):
-        """Move up."""
+        """
+        Двигаться вверх.
+
+        :param args: Не используется.
+        :return: None
+        """
         self.sct.sendall(b"move up\n")
 
     def do_down(self, args):
-        """Move down."""
+        """
+        Двигаться вниз.
+
+        :param args: Не используется.
+        :return: None
+        """
         self.sct.sendall(b"move down\n")
 
     def do_left(self, args):
-        """Move left."""
+        """
+        Двигаться влево.
+
+        :param args: Не используется.
+        :return: None
+        """
         self.sct.sendall(b"move left\n")
 
     def do_right(self, args):
-        """Move right."""
+        """
+        Двигаться вправо.
+
+        :param args: Не используется.
+        :return: None
+        """
         self.sct.sendall(b"move right\n")
 
     def do_addmon(self, args):
         """
-        Add monster to the game.
+        Добавить монстра в игру.
 
-        Format:
-            addmon <monster-name> coords <x> <y> hello <hello message> hp <heatpoints>
-            (coords, hello and hp - can be swaped)
+        Формат:
+            addmon <имя-монстра> coords <x> <y> hello <приветствие> hp <здоровье>
+            (coords, hello и hp - можно поменять местами)
+
+        :param args: строка аргументов.
+        :return: None
         """
         try:
             shlex_line = shlex.split(args)
@@ -72,7 +111,7 @@ class MUD_mainloop(cmd.Cmd):
             monster_name = shlex_line[0]
 
             coords_index = shlex_line.index("coords")
-            coords = tuple(map(int, shlex_line[coords_index + 1: coords_index + 3]))
+            coords = tuple(map(int, shlex_line[coords_index + 1 : coords_index + 3]))
 
             hello_index = shlex_line.index("hello")
             hello_message = shlex_line[hello_index + 1]
@@ -86,9 +125,12 @@ class MUD_mainloop(cmd.Cmd):
             self.sct.sendall(message.encode())
 
     def do_attack(self, args):
-        """Attack monster.
-        Formats:
-            attack [<monster's name>] [with <weapon's name>]
+        """
+        Атаковать монстра.
+        Форматы: attack (<имя монстра>) (with <имя оружия>)
+            
+        :param args: строка аргументов.
+        :return: None
         """
 
         args = shlex.split(args)
@@ -111,18 +153,27 @@ class MUD_mainloop(cmd.Cmd):
             print("Wrong format of command! Try again!")
 
     def do_sayall(self, args):
-        """Send message to all users (including yourself)."""
+        """
+        Отправить сообщение всем пользователям (включая вас самого).
+
+        :param args: строка сообщения.
+        :return: None
+        """
 
         args = shlex.split(args)
         if len(args) != 1:
             print("Wrong format of command! Try again!")
         else:
-            message = f"sayall \"{args[0]}\"\n"
+            message = f'sayall "{args[0]}"\n'
             self.sct.sendall(message.encode())
 
     def do_quit(self, args):
-        """Quit the game."""
+        """
+        Выйти из игры.
 
+        :param args: Не используется.
+        :return: True, чтобы остановить основной цикл.
+        """
         self.sct.sendall("quit\n".encode())
         self.exit_event.set()
         return True
@@ -130,20 +181,41 @@ class MUD_mainloop(cmd.Cmd):
     do_EOF = do_quit
 
     def emptyline(self):
+        """
+        Действие при вводе пустой строки. По умолчанию ничего не делает.
+
+        :return: None
+        """
         pass
 
     def complete_attack(self, prefix, line, start, end):
-        """Complete attack command"""
+        """
+        Автозаполнение для команды атаки.
+
+        :param prefix: введенный префикс строки.
+        :param line: полная введенная строка.
+        :param start: начальный индекс префикса в строке.
+        :param end: конечный индекс префикса в строке.
+        :return: список возможных вариантов для автозаполнения.
+        """
         if "with" in line:
             return [x for x in ("sword", "spear", "axe") if x.startswith(prefix)]
-        elif (line.split()[-1] == 'attack'):
+        elif line.split()[-1] == "attack":
             return [x for x in [*list_cows(), "jgsbat"]]
-        elif (line.split()[1] == prefix):
+        elif line.split()[1] == prefix:
             return [x for x in [*list_cows(), "jgsbat"] if x.startswith(prefix)]
 
     def complete_addmon(self, prefix, line, start, end):
-        """Complete addmon command"""
-        if (line.split()[-1] == 'addmon'):
+        """
+        Автозаполнение для команды добавления монстра.
+
+        :param prefix: введенный префикс строки.
+        :param line: полная введенная строка.
+        :param start: начальный индекс префикса в строке.
+        :param end: конечный индекс префикса в строке.
+        :return: список возможных вариантов для автозаполнения.
+        """
+        if line.split()[-1] == "addmon":
             return [x for x in [*list_cows(), "jgsbat"]]
-        elif (line.split()[1] == prefix):
+        elif line.split()[1] == prefix:
             return [x for x in [*list_cows(), "jgsbat"] if x.startswith(prefix)]

@@ -1,4 +1,7 @@
-"""Entrypoint for the client"""
+"""
+Точка входа для клиента.
+Этот модуль подключается к серверу и запускает основной цикл MUD.
+"""
 
 import sys
 import socket
@@ -6,12 +9,16 @@ import socket
 from .ClientCmd import MUD_mainloop
 
 
-PORT = 1337
+PORT = 4567
 HOST = "127.0.0.1"
 
 
 def main():
-    """Start fuction for client"""
+    """
+    Запускает клиентское приложение. Подключается к серверу и запускает основной цикл MUD.
+
+    :return: None
+    """
     if len(sys.argv) != 2:
         print("Enter your user name")
     else:

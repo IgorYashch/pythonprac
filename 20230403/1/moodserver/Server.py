@@ -1,4 +1,4 @@
-"""Module with asyncio server handler and class of the Multiuser Dungeon Game."""
+"""Модуль с обработчиком сервера asyncio и классом игры MultiUserDungeon."""
 
 import asyncio
 import shlex
@@ -44,11 +44,22 @@ EOC
 # Класс самой игры (Запускается на сервере, вход)
 # Вход методов - только строки!!!
 class MultiUserDungeon:
-    """Class of the game."""
+    """
+    Класс, реализующий многопользовательскую игру в стиле подземелья.
+
+    Ответственен за управление всей логикой игры, включая управление пользователями и монстрами.
+    """
     shape = (0, 0)
 
     def __init__(self, m, n):
-        """Init game."""
+        """
+        Инициализирует новую игру с заданной формой.
+
+        :param m: Количество строк в игре.
+        :type m: int
+        :param n: Количество столбцов в игре.
+        :type n: int
+        """
         self.shape = (m, n)
 
         # Formant: {<coords>: (<monster_name>, <phrase>, <hp>)}
@@ -68,14 +79,24 @@ class MultiUserDungeon:
         }
 
     def add_new_user(self, username):
-        """Add new user to the game."""
+        """
+        Добавляет нового пользователя в игру.
+
+        :param username: Имя пользователя.
+        :type username: str
+        """
         self.answer_messages = []
         self.users_coords[username] = Coordinates(0, 0, self.shape)
         self.print(f"{username} enter to the game!", SEND_ANOTHER_USERS, username)
         return self.answer_messages
 
     def quit(self, username):
-        """Remove user from the game."""
+        """
+        Удаляет пользователя из игры.
+
+        :param username: Имя пользователя.
+        :type username: str
+        """
         self.answer_messages = []
         del self.users_coords[username]
         self.print(f"Googdye, {username}!", SEND_ONE_USER, username)
@@ -83,17 +104,39 @@ class MultiUserDungeon:
         return self.answer_messages
 
     def check_user(self, username):
-        """Check if user already in the game."""
+        """
+        Проверяет, есть ли пользователь с таким именем уже в игре.
+
+        :param username: Имя пользователя.
+        :type username: str
+        :return: True если пользователь в игре, иначе False.
+        :rtype: bool
+        """
         return username in self.users_coords
 
     def print(self, msg, mode, to_username=None):
-        """Add message to the list of result answers.
-        (Private function)
+        """
+        Добавляет сообщение в список результата ответов.
+        (Внутренняя функция)
+
+        :param msg: Сообщение.
+        :type msg: str
+        :param mode: Режим отправки.
+        :type mode: int
+        :param to_username: Имя пользователя, которому отправляется сообщение.
+        :type to_username: str, optional
         """
         self.answer_messages.append((msg + "\n", mode, to_username))
 
     def move(self, username, command):
-        """Move user."""
+        """
+        Перемещает пользователя.
+
+        :param username: Имя пользователя.
+        :type username: str
+        :param command: Команда для перемещения.
+        :type command: str
+        """
         self.answer_messages = []
 
         self.users_coords[username] += self.cmds[command]
@@ -106,7 +149,14 @@ class MultiUserDungeon:
         return self.answer_messages
 
     def encounter(self, username, monster_coords):
-        """Meeting with monster."""
+        """
+        Встреча с монстром.
+
+        :param username: Имя пользователя.
+        :type username: str
+        :param monster_coords: Координаты монстра.
+        :type monster_coords: tuple
+        """
         monster, phrase, hp = self.monsters[monster_coords]
         if monster == "jgsbat":
             self.print(cowsay(phrase, cowfile=custom_monster), SEND_ONE_USER, username)
@@ -114,7 +164,22 @@ class MultiUserDungeon:
             self.print(cowsay(phrase, cow=monster), SEND_ONE_USER, username)
 
     def add_monster(self, username, name, x, y, phrase, hp):
-        """Add new monster to the game."""
+        """
+        Добавляет нового монстра в игру.
+
+        :param username: Имя пользователя.
+        :type username: str
+        :param name: Имя монстра.
+        :type name: str
+        :param x: Координата X монстра.
+        :type x: int
+        :param y: Координата Y монстра.
+        :type y: int
+        :param phrase: Фраза монстра.
+        :type phrase: str
+        :param hp: Здоровье монстра.
+        :type hp: int
+        """
         self.answer_messages = []
         x, y, hp = int(x), int(y), int(hp)
         coords = Coordinates(x, y, self.shape)
@@ -134,7 +199,14 @@ class MultiUserDungeon:
         return self.answer_messages
 
     def attack(self, username, weapon):
-        """Attack monster in current position."""
+        """
+        Атакует монстра в текущей позиции.
+
+        :param username: Имя пользователя.
+        :type username: str
+        :param weapon: Оружие для атаки.
+        :type weapon: str
+        """
         self.answer_messages = []
 
         weapons_damage = {"sword": 10, "spear": 15, "axe": 20}
@@ -166,8 +238,16 @@ class MultiUserDungeon:
 
     def attack_by_name(self, username, monster_name, weapon):
         """
-        Attack monster in current position with chosing name.
-        (idk why, because in one position can be only one monster)
+        Атакует монстра с заданным именем в текущей позиции.
+
+        :param username: Имя пользователя.
+        :type username: str
+        :param monster_name: Имя монстра для атаки.
+        :type monster_name: str
+        :param weapon: Оружие для атаки.
+        :type weapon: str
+        :return: Ответные сообщения.
+        :rtype: list
         """
         self.answer_messages = []
         if self.users_coords[username] not in self.monsters:
@@ -181,15 +261,28 @@ class MultiUserDungeon:
         return self.answer_messages
 
     def sayall(self, username, message):
-        """Send message all other users."""
+        """
+        Отправляет сообщение всем другим пользователям.
+
+        :param username: Имя пользователя.
+        :type username: str
+        :param message: Сообщение для отправки.
+        :type message: str
+        :return: Ответные сообщения.
+        :rtype: list
+        """
         
         self.answer_messages = []
         self.print(f"{username}: " + message, SEND_ALL_USERS)
         return self.answer_messages
 
     def move_monster(self):
-        """Move random monster."""
-        
+        """
+        Перемещает случайного монстра в случайном направлении на одну клетку.
+
+        :return: Ответные сообщения.
+        :rtype: list
+        """
         self.answer_messages = []
 
         if not self.monsters:
@@ -215,7 +308,20 @@ class MultiUserDungeon:
 
 
 async def handler(reader, writer, game, clients):
-    """Handler for user sessions."""
+    """
+    Асинхронная функция-обработчик для пользовательских сессий.
+
+    Отвечает за обработку пользовательских команд и отправку сообщений пользователям.
+
+    :param reader: Средство чтения asyncio, используемое для чтения данных от пользователя.
+    :type reader: StreamReader
+    :param writer: Средство записи asyncio, используемое для отправки данных пользователю.
+    :type writer: StreamWriter
+    :param game: Экземпляр игры MultiUserDungeon, который содержит всю игровую логику.
+    :type game: MultiUserDungeon
+    :param clients: Словарь клиентов с их очередями сообщений.
+    :type clients: dict
+    """
     username = await reader.readline()
     username = username.decode().rstrip()
 
@@ -279,7 +385,16 @@ async def handler(reader, writer, game, clients):
 
 
 async def move_random_monster(game, clients, time_interval):
-    """Daemon function for moving one random monster with time interval."""
+    """
+    Демон функция для перемещения одного случайного монстра с заданным временным интервалом.
+
+    :param game: Экземпляр игры MultiUserDungeon, который содержит всю игровую логику.
+    :type game: MultiUserDungeon
+    :param clients: Словарь клиентов с их очередями сообщений.
+    :type clients: dict
+    :param time_interval: Временной интервал в секундах между перемещениями монстров.
+    :type time_interval: int
+    """
     while True:
         await asyncio.sleep(time_interval)
         answers = game.move_monster()

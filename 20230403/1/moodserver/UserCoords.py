@@ -1,15 +1,34 @@
-"""Module for coordinates class."""
+"""Модуль для класса координат."""
 
 
 class Coordinates:
-    """Class of coordinates for the MUD game."""
+    """
+    Класс координат для игры MUD.
+    """
     def __init__(self, x, y, map_size):
-        """Initialize the coordinates with given x, y and map size."""
+        """
+        Инициализирует координаты с заданными x, y и размером карты.
+
+        :param x: Координата x.
+        :type x: int
+        :param y: Координата y.
+        :type y: int
+        :param map_size: Размер карты.
+        :type map_size: tuple
+        """
         self.data = (x, y)
         self.map_size = map_size
 
     def __add__(self, other):
-        """Add two coordinate objects or a coordinate object and a tuple."""
+        """
+        Складывает два объекта координат или объект координат и кортеж.
+
+        :param other: Другой объект координат или кортеж.
+        :type other: Coordinates or tuple
+        :return: Результат сложения координат.
+        :rtype: Coordinates
+        :raises TypeError: Если тип other не поддерживается.
+        """
         if isinstance(other, self.__class__):
             return self.__class__((self.data[0] + other.data[0]) % self.map_size[0],
                                   (self.data[1] + other.data[1]) % self.map_size[1],
@@ -22,13 +41,30 @@ class Coordinates:
             raise TypeError("Something wrong with this operation")
 
     def __eq__(self, other):
-        """Check if two coordinate objects are equal."""
+        """
+        Проверяет равенство двух объектов координат.
+
+        :param other: Другой объект координат для сравнения.
+        :type other: Coordinates
+        :return: Результат сравнения.
+        :rtype: bool
+        """
         return self.data == other.data
 
     def __repr__(self):
-        """Return a string representation of the coordinates."""
+        """
+        Возвращает строковое представление координат.
+
+        :return: Строковое представление координат.
+        :rtype: str
+        """
         return f"({self.data[0]}, {self.data[1]})"
 
     def __hash__(self):
-        """Compute the hash value of the coordinates."""
+        """
+        Вычисляет хэш-значение координат.
+
+        :return: Хэш-значение координат.
+        :rtype: int
+        """
         return hash(self.data)

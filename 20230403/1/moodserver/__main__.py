@@ -1,18 +1,22 @@
-"""Entrypoint for the server"""
+"""Модуль, представляющий точку входа для сервера"""
 
 import asyncio
 
 from .Server import MultiUserDungeon, handler, move_random_monster
 from .Server import X_SHAPE, Y_SHAPE
 
-PORT = 1337
+PORT = 4567
 HOST = "127.0.0.1"
 
 MONSTER_MOVE_INTERVAL = 30
 
 
 async def main_server():
-    """Main function for server."""
+    """
+    Основная функция для запуска сервера.
+
+    Создает экземпляр игры, словарь клиентов и начинает сервер и регулярное перемещение монстров.
+    """
     # Класс самой игры
     game = MultiUserDungeon(X_SHAPE, Y_SHAPE)
     # Словарь с очередями на отправку сообщений пользователям
