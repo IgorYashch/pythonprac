@@ -1,0 +1,18 @@
+[project]
+name = "MoodClient"
+version = "0.0.1"
+description = "MOOD Game Client"
+requires-python = ">=3.10"
+authors = [
+ {name = "Igor Yashchenko", email = "yashch.igor@gmail.com"}
+]
+dependencies = [
+    "python-cowsay"
+]
+
+[build-system]
+requires = ["Sphinx", "build", "setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-dir]
+moodserver = "moodclient"
