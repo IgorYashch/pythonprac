@@ -32,3 +32,9 @@ def task_wheel_server():
         'targets': ['moodserver/dist/*.whl'],
         'clean': [(shutil.rmtree, ['moodserver/dist']), (shutil.rmtree, ['moodserver/build']), (shutil.rmtree, ['moodserver/MoodServer.egg-info'])],
         }
+    
+def task_test():
+    "Test client"
+    return {
+        'actions': ['python3 -m unittest -v test_client.py']
+    }

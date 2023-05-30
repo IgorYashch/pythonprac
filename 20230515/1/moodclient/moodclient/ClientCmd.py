@@ -24,7 +24,7 @@ class MUD_mainloop(cmd.Cmd):
 
     prompt = "(MUD) "
 
-    def __init__(self, sct):
+    def __init__(self, sct, test=False):
         """
         Инициализация командной строки.
 
@@ -34,10 +34,10 @@ class MUD_mainloop(cmd.Cmd):
         super().__init__()
         self.sct = sct
 
-        self.print_thread = threading.Thread(target=self.print_from_server)
-        self.exit_event = threading.Event()
-
-        self.print_thread.start()
+        if not test:
+            self.print_thread = threading.Thread(target=self.print_from_server)
+            self.exit_event = threading.Event()
+            self.print_thread.start()
 
     def print_from_server(self):
         """
