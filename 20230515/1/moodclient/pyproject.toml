@@ -15,4 +15,4 @@ requires = ["Sphinx", "build", "setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-dir]
-moodserver = "moodclient"
+moodclient = "moodclient"
